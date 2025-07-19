@@ -35,3 +35,13 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# 로컬/민감한 설정 파일
+# 민감한 DB 인증 정보가 포함된 application-local.properties는 커밋하지 않습니다.
+/src/main/resources/application-local.properties
+# 모든 .yml 파일은 기본적으로 무시 (하지만 아래 예외 규칙으로 application.yml은 포함)
+/src/main/resources/*.yml
+# main application.properties 파일은 커밋합니다.
+!/src/main/resources/application.properties
+# main application.yml 파일은 커밋합니다. (YAML 사용 시)
+!/src/main/resources/application.yml
