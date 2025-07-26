@@ -9,6 +9,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter; // 추가
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -19,6 +20,13 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity // Spring Security 활성화
 public class SecurityConfig {
+
+    private final FirebaseTokenFilter firebaseTokenFilter; // FirebaseTokenFilter 주입을 위한 필드 추가
+
+    // FirebaseTokenFilter를 주입받는 생성자 추가
+    public SecurityConfig(FirebaseTokenFilter firebaseTokenFilter) {
+        this.firebaseTokenFilter = firebaseTokenFilter;
+    }
 
     // 1. 비밀번호 암호화를 위한 PasswordEncoder 빈 등록
     @Bean
@@ -63,13 +71,15 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // HTTP 요청에 대한 인가(권한 부여) 규칙 설정
                 .authorizeHttpRequests(authorize -> authorize
-                        // /auth/** 경로는 모든 사용자에게 접근 허용 (로그인, 회원가입 등)
-                        .requestMatchers("/auth/**", "/users/signup").permitAll()
+                        // /api/auth/** 경로는 모든 사용자에게 접근 허용 (로그인, 회원가입 등)
+                        // /api/public/** 경로는 인증 없이 접근 허용 (예: 공개 게시글 조회 등)
+                        .requestMatchers("/api/auth/**", "/api/public/**").permitAll() // 경로 수정
                         // 나머지 모든 요청은 인증된 사용자만 접근 허용
                         .anyRequest().authenticated()
-                );
-        // TODO: Firebase ID Token 검증 필터 추가 (다음 단계에서 구현)
-        // .addFilterBefore(new FirebaseTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+                )
+                // Firebase ID Token 검증 필터 추가
+                // FirebaseTokenFilter를 UsernamePasswordAuthenticationFilter 이전에 추가하여 토큰 검증을 먼저 수행합니다.
+                .addFilterBefore(firebaseTokenFilter, UsernamePasswordAuthenticationFilter.class); // 필터 추가
 
         return http.build();
     }
