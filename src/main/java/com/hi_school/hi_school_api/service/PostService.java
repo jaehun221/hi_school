@@ -3,7 +3,7 @@ package com.hi_school.hi_school_api.service;
 import com.hi_school.hi_school_api.domain.post.Post;
 import com.hi_school.hi_school_api.dto.post.PostRequestDto;
 import com.hi_school.hi_school_api.dto.post.PostResponseDto;
-import com.hi_school.hi_school_api.repository.PostRepository;
+import com.hi_school.hi_school_api.domain.post.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

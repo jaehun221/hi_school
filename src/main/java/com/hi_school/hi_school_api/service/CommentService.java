@@ -3,7 +3,7 @@ package com.hi_school.hi_school_api.service;
 import com.hi_school.hi_school_api.domain.comment.Comment;
 import com.hi_school.hi_school_api.domain.comment.CommentRepository;
 import com.hi_school.hi_school_api.domain.post.Post;
-import com.hi_school.hi_school_api.repository.PostRepository;
+import com.hi_school.hi_school_api.domain.post.PostRepository;
 import com.hi_school.hi_school_api.dto.comment.CommentRequestDto;
 import com.hi_school.hi_school_api.dto.comment.CommentResponseDto;
 import jakarta.persistence.EntityNotFoundException;
