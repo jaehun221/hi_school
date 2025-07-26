@@ -65,11 +65,14 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (FirebaseAuthException e) {
-            // 4. 토큰 검증 실패 시 (만료, 유효하지 않음 등)
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
-            response.getWriter().write("Invalid or expired Firebase ID token");
-            return; // 여기서 요청 처리 중단
+            response.setContentType("application/json");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
+            response.getWriter().write("{\"message\": \"Invalid or expired Firebase ID token\"}");
+            response.getWriter().flush();
+            response.getWriter().close();
+            return; // 여기서 끝내야 다음 필터로 안 넘어감
         }
+
 
         // 다음 필터로 요청 전달
         filterChain.doFilter(request, response);
