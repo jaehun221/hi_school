@@ -75,7 +75,7 @@ public class SecurityConfig {
                         // /api/public/** 경로는 인증 없이 접근 허용 (예: 공개 게시글 조회 등)
                         .requestMatchers("/api/auth/**", "/api/public/**").permitAll() // 경로 수정
                         // 나머지 모든 요청은 인증된 사용자만 접근 허용
-                        .anyRequest().permitAll() //authenticated()
+                        .anyRequest().authenticated()
                 )
                 // Firebase ID Token 검증 필터 추가
                 // FirebaseTokenFilter를 UsernamePasswordAuthenticationFilter 이전에 추가하여 토큰 검증을 먼저 수행합니다.
