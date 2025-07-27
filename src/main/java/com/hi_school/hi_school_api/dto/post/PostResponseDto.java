@@ -11,6 +11,7 @@ public class PostResponseDto {
     private String title;
     private String content;
     private String author;
+    private String authorUid;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -19,6 +20,7 @@ public class PostResponseDto {
         this.title = post.getTitle();
         this.content = post.getContent();
         this.author = post.getAuthor();
+        this.authorUid = post.getAuthorUid();
         this.createdAt = post.getCreatedAt();
         this.updatedAt = post.getUpdatedAt();
     }

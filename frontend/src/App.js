@@ -1,15 +1,47 @@
 import React from 'react';
-import { AuthProvider } from './context/AuthContext'; // AuthProvider 임포트
-import AuthPage from './pages/AuthPage'; // AuthPage 임포트
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import AuthPage from './pages/AuthPage';
+import HomePage from './pages/HomePage';
+import PostPage from './pages/PostPage';
+import CreatePostPage from './pages/CreatePostPage';
+// ... 필요한 컴포넌트 import
+
+// 인증된 상태에서만 children을 보여주는 예시
+function PrivateRoute({ children }) {
+  const { currentUser, loading } = useAuth();
+  if (loading) return null;
+  return currentUser ? children : <Navigate to="/auth" replace />;
+}
+
 
 function App() {
-    return (
-        // AuthProvider로 앱 전체를 감싸서 인증 상태를 제공합니다.
-        <AuthProvider>
-            <AuthPage /> {/* 인증 페이지를 렌더링 */}
-            {/* 여기에 다른 라우트나 컴포넌트가 추가될 수 있습니다. */}
-        </AuthProvider>
-    );
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* 인증이 필요한 라우트 */}
+          <Route path="/" element={
+            <PrivateRoute>
+              <HomePage />
+            </PrivateRoute>
+          } />
+          <Route path="/posts/:id" element={
+            <PrivateRoute>
+              <PostPage />
+            </PrivateRoute>
+          } />
+          <Route path="/create" element={
+            <PrivateRoute>
+              <CreatePostPage />
+            </PrivateRoute>
+          } />
+          {/* 인증이 필요 없는 라우트 */}
+          <Route path="/auth" element={<AuthPage />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }
 
 export default App;

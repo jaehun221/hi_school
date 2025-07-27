@@ -16,7 +16,9 @@ public class Post {
 
     private String title;
     private String content;
-    private String author;
+    private String author;     // 닉네임 등
+
+    private String authorUid;  // 작성자 식별자 (Firebase UID)
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
