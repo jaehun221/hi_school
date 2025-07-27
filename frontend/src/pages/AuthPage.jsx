@@ -29,7 +29,16 @@ function AuthPage() {
             }
         } catch (error) {
             console.error('인증 처리 오류:', error);
-            showMessage(`오류: ${error.message || '알 수 없는 오류가 발생했습니다.'}`, 'error');
+            // 에러 메시지를 사용자에게 더 친화적으로 표시
+            let errorMessage = '알 수 없는 오류가 발생했습니다.';
+            if (error.message) {
+                errorMessage = error.message;
+            } else if (error.response && error.response.data && error.response.data.message) {
+                // 백엔드에서 넘어오는 API 응답의 에러 메시지 처리
+                errorMessage = error.response.data.message;
+            }
+            // ⭐ 오류 메시지 출력 방식 수정: 템플릿 리터럴 대신 문자열 연결 사용
+            showMessage('오류: ' + errorMessage, 'error');
         }
     };
 
