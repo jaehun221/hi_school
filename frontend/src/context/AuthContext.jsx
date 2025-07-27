@@ -1,10 +1,7 @@
-// src/context/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth } from '../firebase/firebaseConfig'; // Firebase auth 인스턴스 임포트
 
-// ⭐ 중요: 이 라인을 정확히 확인하고 수정하세요.
-// createUserWithEmailAndPassword와 signInWithEmailAndPassword를 firebase/auth에서 임포트해야 합니다.
-import { onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { onAuthStateChanged, signOut, signInWithEmailAndPassword } from 'firebase/auth';
 
 import { signupUser, signinUser } from '../services/authService'; // 백엔드 서비스 임포트
 
@@ -35,27 +32,35 @@ export const AuthProvider = ({ children }) => {
     // 회원가입 함수
     const signup = async (email, password, nickname) => {
         try {
-            // 1. Firebase Authentication에 사용자 생성
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const firebaseUser = userCredential.user;
-
-            // 2. 백엔드 API에 회원가입 정보 전송
+            // 1. 백엔드 API에 회원가입 정보 전송
+            // Firebase 사용자 생성 및 로컬 DB 저장 모두 백엔드에서 처리
             const backendResponse = await signupUser(email, password, nickname);
 
             if (backendResponse.success) {
+                // 백엔드에서 사용자 생성 및 DB 저장이 성공했으므로,
+                // 이제 Firebase SDK를 통해 해당 계정으로 로그인 시도
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const firebaseUser = userCredential.user;
+
+                // ⭐ 추가: Firebase ID 토큰을 얻어 콘솔에 출력
+                const idToken = await firebaseUser.getIdToken();
+                console.log('회원가입 후 Firebase ID Token:', idToken);
+
                 return { success: true, message: backendResponse.message, user: firebaseUser };
             } else {
-                // 백엔드 저장 실패 시 Firebase 사용자 롤백 (선택 사항)
-                await firebaseUser.delete();
+                // 백엔드에서 실패한 경우
                 throw new Error(backendResponse.message || '백엔드 회원가입 실패');
             }
         } catch (error) {
             console.error('회원가입 오류:', error);
+            if (error.message && error.message.includes('EMAIL_EXISTS')) {
+                throw new Error('이미 가입된 이메일입니다. 로그인해주세요.');
+            }
             throw error;
         }
     };
 
-    // 로그인 함수
+    // 로그인 함수 (기존과 동일)
     const login = async (email, password) => {
         try {
             // 1. Firebase Authentication으로 로그인
@@ -64,6 +69,7 @@ export const AuthProvider = ({ children }) => {
 
             // 2. Firebase ID Token 획득
             const idToken = await firebaseUser.getIdToken();
+            console.log('로그인 후 Firebase ID Token:', idToken); // ⭐ 추가: 로그인 시에도 토큰 출력
 
             // 3. 백엔드 API에 ID Token 전송하여 로그인 처리
             const backendResponse = await signinUser(idToken);
@@ -79,11 +85,10 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // 로그아웃 함수
+    // 로그아웃 함수 (기존과 동일)
     const logout = async () => {
         try {
             await signOut(auth); // Firebase 로그아웃
-            // 필요한 경우 백엔드 로그아웃 API 호출 (세션 기반이 아니라면 불필요)
             return { success: true, message: '로그아웃 성공' };
         } catch (error) {
             console.error('로그아웃 오류:', error);
@@ -102,7 +107,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={value}>
-            {!loading && children} {/* 로딩이 끝나면 자식 컴포넌트 렌더링 */}
+            {!loading && children}
         </AuthContext.Provider>
     );
 };
