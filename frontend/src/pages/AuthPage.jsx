@@ -3,7 +3,7 @@ import AuthForm from '../components/AuthForm'; // AuthForm 컴포넌트 임포�
 import { useAuth } from '../context/AuthContext'; // useAuth 훅 임포트 (확장자 생략)
 
 function AuthPage() {
-    const [isSignupMode, setIsSignupMode] = useState(true); // 회원가입/로그인 모드 전환
+    const [isSignupMode, setIsSignupMode] = useState(false); // 회원가입/로그인 모드 전환
     const [message, setMessage] = useState({ text: '', type: '' }); // 메시지 표시
     const { signup, login, currentUser, logout } = useAuth(); // AuthContext에서 함수와 상태 가져오기
 
