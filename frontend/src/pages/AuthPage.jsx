@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
-import AuthForm from '../components/AuthForm'; // AuthForm 컴포넌트 임포트 (확장자 생략)
-import { useAuth } from '../context/AuthContext'; // useAuth 훅 임포트 (확장자 생략)
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import AuthForm from '../components/AuthForm';
+import { useAuth } from '../context/AuthContext';
 
 function AuthPage() {
-    const [isSignupMode, setIsSignupMode] = useState(false); // 회원가입/로그인 모드 전환
-    const [message, setMessage] = useState({ text: '', type: '' }); // 메시지 표시
-    const { signup, login, currentUser, logout } = useAuth(); // AuthContext에서 함수와 상태 가져오기
+    const [isSignupMode, setIsSignupMode] = useState(true); // 기본: 회원가입 모드
+    const [message, setMessage] = useState({ text: '', type: '' });
+    const { signup, login, currentUser, logout } = useAuth();
+    const navigate = useNavigate();
 
-    // 메시지를 설정하고 일정 시간 후 지우는 함수
+    // 로그인한 상태에서 /auth 접근 시 리디렉션
+    useEffect(() => {
+        if (currentUser) {
+            navigate('/');
+        }
+    }, [currentUser, navigate]);
+
     const showMessage = (text, type = 'info', duration = 5000) => {
         setMessage({ text, type });
         setTimeout(() => {
@@ -15,33 +23,23 @@ function AuthPage() {
         }, duration);
     };
 
-    // AuthForm 제출 핸들러
     const handleSubmit = async ({ email, password, nickname }) => {
         try {
             if (isSignupMode) {
-                // 회원가입 모드
                 const result = await signup(email, password, nickname);
                 showMessage(result.message, 'success');
             } else {
-                // 로그인 모드
                 const result = await login(email, password);
                 showMessage(result.message, 'success');
             }
+            navigate('/');
         } catch (error) {
             console.error('인증 처리 오류:', error);
-            // 에러 메시지를 사용자에게 더 친화적으로 표시
-            let errorMessage = '알 수 없는 오류가 발생했습니다.';
-            if (error.message) {
-                errorMessage = error.message;
-            } else if (error.response && error.response.data && error.response.data.message) {
-                // 백엔드에서 넘어오는 API 응답의 에러 메시지 처리
-                errorMessage = error.response.data.message;
-            }
+            const errorMessage = error.response?.data?.message || error.message || '알 수 없는 오류가 발생했습니다.';
             showMessage('오류: ' + errorMessage, 'error');
         }
     };
 
-    // 로그아웃 핸들러
     const handleLogout = async () => {
         try {
             const result = await logout();
