@@ -1,4 +1,3 @@
-// src/index.js
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css'; // Tailwind CSS 기본 스타일 임포트

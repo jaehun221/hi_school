@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import AuthForm from '../components/AuthForm'; // AuthForm 컴포넌트 임포트
-import { useAuth } from '../context/AuthContext'; // useAuth 훅 임포트
+import AuthForm from '../components/AuthForm'; // AuthForm 컴포넌트 임포트 (확장자 생략)
+import { useAuth } from '../context/AuthContext'; // useAuth 훅 임포트 (확장자 생략)
 
 function AuthPage() {
     const [isSignupMode, setIsSignupMode] = useState(true); // 회원가입/로그인 모드 전환
@@ -37,7 +37,6 @@ function AuthPage() {
                 // 백엔드에서 넘어오는 API 응답의 에러 메시지 처리
                 errorMessage = error.response.data.message;
             }
-            // ⭐ 오류 메시지 출력 방식 수정: 템플릿 리터럴 대신 문자열 연결 사용
             showMessage('오류: ' + errorMessage, 'error');
         }
     };
@@ -54,46 +53,43 @@ function AuthPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-            <div className="bg-white p-10 rounded-xl shadow-xl w-full max-w-md">
-                <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-200 p-4 sm:px-8 lg:px-16">
+            <div className="bg-white p-8 sm:p-10 rounded-2xl shadow-2xl w-full max-w-sm transform transition-all duration-300 hover:scale-[1.01] border border-indigo-300">
+                <h2 className="text-4xl font-extrabold text-center text-gray-900 mb-8 tracking-tight">
                     {isSignupMode ? '회원가입' : '로그인'}
                 </h2>
 
-                {/* 현재 로그인된 사용자 정보 표시 */}
                 {currentUser && (
-                    <div className="bg-blue-50 border border-blue-200 text-blue-800 p-3 rounded-lg mb-6 text-sm">
-                        <p className="font-semibold">로그인됨:</p>
-                        <p>이메일: {currentUser.email}</p>
-                        <p>UID: {currentUser.uid}</p>
+                    <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg mb-6 text-sm shadow-inner">
+                        <p className="font-bold text-base mb-2">로그인됨:</p>
+                        <p className="mb-1">이메일: <span className="font-medium">{currentUser.email}</span></p>
+                        <p className="mb-3">UID: <span className="font-medium break-all">{currentUser.uid}</span></p>
                         <button
                             onClick={handleLogout}
-                            className="mt-3 w-full bg-red-500 text-white py-2 px-4 rounded-md text-sm font-semibold hover:bg-red-600 transition duration-300"
+                            className="mt-3 w-full bg-red-500 text-white py-2.5 px-4 rounded-md text-base font-semibold hover:bg-red-600 transition duration-300 shadow-md"
                         >
                             로그아웃
                         </button>
                     </div>
                 )}
 
-                {/* 로그인/회원가입 폼 */}
-                {!currentUser && ( // 로그인되지 않았을 때만 폼 표시
+                {!currentUser && (
                     <>
                         <AuthForm onSubmit={handleSubmit} isSignup={isSignupMode} />
                         <button
                             onClick={() => setIsSignupMode(!isSignupMode)}
-                            className="mt-4 w-full text-indigo-600 text-sm hover:underline"
+                            className="mt-6 w-full text-indigo-700 text-base font-medium hover:underline hover:text-indigo-900 transition duration-200"
                         >
                             {isSignupMode ? '이미 계정이 있으신가요? 로그인' : '계정이 없으신가요? 회원가입'}
                         </button>
                     </>
                 )}
 
-                {/* 메시지 표시 영역 */}
                 {message.text && (
-                    <div className={`mt-6 p-4 rounded-lg text-sm ${
-                        message.type === 'success' ? 'bg-green-100 text-green-800' :
-                        message.type === 'error' ? 'bg-red-100 text-red-800' :
-                        'bg-blue-100 text-blue-800'
+                    <div className={`mt-6 p-4 rounded-lg text-base font-medium shadow-md ${
+                        message.type === 'success' ? 'bg-green-100 text-green-800 border border-green-300' :
+                        message.type === 'error' ? 'bg-red-100 text-red-800 border border-red-300' :
+                        'bg-blue-100 text-blue-800 border border-blue-300'
                     }`}>
                         {message.text}
                     </div>
