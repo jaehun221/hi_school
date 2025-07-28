@@ -3,76 +3,143 @@ package com.hi_school.hi_school_api.controller;
 import com.hi_school.hi_school_api.dto.auth.AuthResponseDto;
 import com.hi_school.hi_school_api.dto.auth.SignInRequestDto;
 import com.hi_school.hi_school_api.dto.auth.SignUpRequestDto;
-import com.hi_school.hi_school_api.dto.global.ApiResponse; // ⭐ 이 부분을 수정합니다.
+import com.hi_school.hi_school_api.dto.global.ApiResponse;
 import com.hi_school.hi_school_api.service.AuthService;
-import jakarta.validation.Valid; // @Valid 어노테이션 임포트
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.FieldError; // FieldError 임포트 추가
 
-@RestController // 이 클래스가 RESTful 웹 서비스의 컨트롤러임을 나타냅니다.
-@RequestMapping("/api/auth") // 이 컨트롤러의 모든 엔드포인트는 /api/auth 경로로 시작합니다.
-@RequiredArgsConstructor // Lombok: final 필드에 대한 생성자를 자동으로 생성하여 의존성 주입을 돕습니다.
-@Slf4j // Lombok: 로깅을 위한 Logger 객체를 자동으로 생성합니다.
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController // This class indicates that it is a RESTful web service controller.
+@RequestMapping("/api/auth") // All endpoints in this controller start with the /api/auth path.
+@RequiredArgsConstructor // Lombok: Automatically generates a constructor for final fields to help with dependency injection.
+@Slf4j // Lombok: Automatically generates a Logger object for logging.
 public class AuthController {
 
-    private final AuthService authService; // AuthService 의존성 주입
+    private final AuthService authService; // AuthService dependency injection
 
     /**
-     * 사용자 회원가입 API
-     * 클라이언트로부터 회원가입 요청을 받아 Firebase 및 우리 DB에 사용자 정보를 생성합니다.
-     * @param requestDto 회원가입 요청 DTO (이메일, 비밀번호, 닉네임)
-     * @return ResponseEntity<ApiResponse<AuthResponseDto>> 회원가입 성공 응답
+     * User registration API
+     * Receives a registration request from the client and creates user information in Firebase and our DB.
+     * @param requestDto Registration request DTO (email, password, nickname, username)
+     * @return ResponseEntity<ApiResponse<AuthResponseDto>> Successful registration response
      */
-    @PostMapping("/signup") // POST 요청을 /api/auth/signup 경로로 매핑합니다.
+    @PostMapping("/signup") // Maps POST requests to the /api/auth/signup path.
     public ResponseEntity<ApiResponse<AuthResponseDto>> signup(@Valid @RequestBody SignUpRequestDto requestDto) {
-        log.info("회원가입 요청 수신: 이메일={}, 닉네임={}", requestDto.getEmail(), requestDto.getNickname());
+        // ⭐ Modified: Added username to the log message
+        log.info("Registration request received: Email={}, Nickname={}, Username={}", requestDto.getEmail(), requestDto.getNickname(), requestDto.getUsername());
         try {
             AuthResponseDto responseDto = authService.signup(requestDto);
-            // 성공 응답 반환
-            return ResponseEntity.status(HttpStatus.CREATED) // HTTP 201 Created 상태 코드
+            // Return success response
+            return ResponseEntity.status(HttpStatus.CREATED) // HTTP 201 Created status code
                     .body(ApiResponse.success(responseDto, "회원가입이 성공적으로 완료되었습니다."));
         } catch (IllegalStateException e) {
-            log.error("회원가입 실패: {}", e.getMessage());
-            // 비즈니스 로직 예외 처리 (예: 중복 이메일/닉네임, Firebase 사용자 생성 실패)
-            return ResponseEntity.status(HttpStatus.CONFLICT) // HTTP 409 Conflict 상태 코드
+            log.error("Registration failed: {}", e.getMessage());
+            // Handle business logic exceptions (e.g., duplicate email/nickname/username, Firebase user creation failure)
+            return ResponseEntity.status(HttpStatus.CONFLICT) // HTTP 409 Conflict status code
                     .body(ApiResponse.fail(e.getMessage()));
         } catch (Exception e) {
-            log.error("예상치 못한 회원가입 오류 발생: {}", e.getMessage(), e);
-            // 그 외 예상치 못한 서버 오류
+            log.error("Unexpected registration error occurred: {}", e.getMessage(), e);
+            // Other unexpected server errors
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR) // HTTP 500 Internal Server Error
                     .body(ApiResponse.error("회원가입 중 서버 오류가 발생했습니다."));
         }
     }
 
     /**
-     * 사용자 로그인 API
-     * 클라이언트로부터 Firebase ID 토큰을 받아 우리 DB에 사용자 정보가 있는지 확인하고 로그인 처리합니다.
-     * 실제 Firebase 인증은 클라이언트 측에서 먼저 수행되어야 합니다.
-     * @param requestDto 로그인 요청 DTO (Firebase ID 토큰)
-     * @return ResponseEntity<ApiResponse<AuthResponseDto>> 로그인 성공 응답
+     * User login API
+     * Receives a Firebase ID Token from the client, verifies if user information exists in our DB, and processes login.
+     * Actual Firebase authentication should be performed on the client side first.
+     * @param requestDto Login request DTO (Firebase ID Token)
+     * @return ResponseEntity<ApiResponse<AuthResponseDto>> Successful login response
      */
-    @PostMapping("/signin") // POST 요청을 /api/auth/signin 경로로 매핑합니다.
+    @PostMapping("/signin") // Maps POST requests to the /api/auth/signin path.
     public ResponseEntity<ApiResponse<AuthResponseDto>> signin(@Valid @RequestBody SignInRequestDto requestDto) {
-        log.info("로그인 요청 수신: Firebase ID 토큰={}", requestDto.getFirebaseIdToken() != null ? requestDto.getFirebaseIdToken().substring(0, 30) + "..." : "null");
+        // ⭐ Login request reception log changed to match ID token.
+        log.info("Login request received: Firebase ID Token={}", requestDto.getFirebaseIdToken() != null ? requestDto.getFirebaseIdToken().substring(0, 30) + "..." : "null");
         try {
+            // ⭐ Passes the Firebase ID Token directly from SignInRequestDto to AuthService.
             AuthResponseDto responseDto = authService.signIn(requestDto.getFirebaseIdToken());
 
             return ResponseEntity.ok(ApiResponse.success(responseDto, "로그인이 성공적으로 완료되었습니다."));
         } catch (IllegalStateException e) {
-            log.error("로그인 실패: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED) // HTTP 401 Unauthorized 상태 코드
+            log.error("Login failed: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED) // HTTP 401 Unauthorized status code
                     .body(ApiResponse.fail(e.getMessage()));
         } catch (IllegalArgumentException e) {
-            log.error("로그인 요청 오류: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST) // HTTP 400 Bad Request 상태 코드
+            log.error("Login request error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST) // HTTP 400 Bad Request status code
                     .body(ApiResponse.fail(e.getMessage()));
         } catch (Exception e) {
-            log.error("예상치 못한 로그인 오류 발생: {}", e.getMessage(), e);
+            log.error("Unexpected login error occurred: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR) // HTTP 500 Internal Server Error
                     .body(ApiResponse.error("로그인 중 서버 오류가 발생했습니다."));
         }
+    }
+
+    /**
+     * Endpoint to retrieve user's email by username.
+     * Used when the client logs in with an ID.
+     * @param username The username to query
+     * @return ApiResponse containing the email corresponding to the username
+     */
+    @GetMapping("/email-by-username") // ⭐ Added (or replaces existing email-by-nickname)
+    public ResponseEntity<ApiResponse<String>> getEmailByUsername(@RequestParam String username) {
+        try {
+            String email = authService.getEmailByUsername(username);
+            return ResponseEntity.ok(ApiResponse.success(email, "아이디에 해당하는 이메일을 성공적으로 조회했습니다."));
+        } catch (IllegalStateException e) {
+            log.warn("Failed to retrieve email by ID: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND) // 404 Not Found
+                    .body(ApiResponse.fail(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Server error while retrieving email by ID: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR) // 500 Internal Server Error
+                    .body(ApiResponse.error("이메일 조회 중 서버 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * Endpoint to retrieve user's username by email.
+     * Can be used for "Find ID" functionality.
+     * @param email The email to query
+     * @return ApiResponse containing the username corresponding to the email
+     */
+    @GetMapping("/username-by-email") // ⭐ Added
+    public ResponseEntity<ApiResponse<String>> getUsernameByEmail(@RequestParam String email) {
+        try {
+            String username = authService.getUsernameByEmail(email);
+            return ResponseEntity.ok(ApiResponse.success(username, "이메일에 해당하는 아이디를 성공적으로 조회했습니다."));
+        } catch (IllegalStateException e) {
+            log.warn("Failed to retrieve ID by email: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND) // 404 Not Found
+                    .body(ApiResponse.fail(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Server error while retrieving ID by email: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR) // 500 Internal Server Error
+                    .body(ApiResponse.error("아이디 조회 중 서버 오류가 발생했습니다."));
+        }
+    }
+
+    // ⭐ Added: Handler for MethodArgumentNotValidException which occurs on validation failure
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST) // Returns HTTP 400 Bad Request status code
+    public ApiResponse<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        log.warn("Validation failed: {}", errors);
+        // ApiResponse.fail method should be able to accept Map<String, String> as data.
+        return ApiResponse.fail("유효성 검사 실패", errors);
     }
 }

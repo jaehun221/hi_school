@@ -3,7 +3,8 @@ import { auth } from '../firebase/firebaseConfig'; // Firebase auth 인스턴스
 
 import { onAuthStateChanged, signOut, signInWithEmailAndPassword } from 'firebase/auth';
 
-import { signupUser, signinUser } from '../services/authService'; // 백엔드 서비스 임포트
+// ⭐ 수정: getEmailByUsername 및 getUsernameByEmail 함수 임포트
+import { signupUser, signinUser, getEmailByUsername, getUsernameByEmail } from '../services/authService'; // 백엔드 서비스 임포트
 
 // AuthContext 생성
 const AuthContext = createContext();
@@ -30,11 +31,13 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     // 회원가입 함수
-    const signup = async (email, password, nickname) => {
+    // ⭐ 수정: username 파라미터 추가
+    const signup = async (email, password, nickname, username) => {
         try {
             // 1. 백엔드 API에 회원가입 정보 전송
             // Firebase 사용자 생성 및 로컬 DB 저장 모두 백엔드에서 처리
-            const backendResponse = await signupUser(email, password, nickname);
+            // ⭐ 수정: username을 signupUser 함수에 전달
+            const backendResponse = await signupUser(email, password, nickname, username);
 
             if (backendResponse.success) {
                 // 백엔드에서 사용자 생성 및 DB 저장이 성공했으므로,

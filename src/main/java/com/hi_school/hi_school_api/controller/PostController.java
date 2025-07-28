@@ -35,4 +35,15 @@ public class PostController {
         postService.deletePost(id);
         return ResponseEntity.ok().build();
     }
+
+    // 게시글 전체 목록 + 페이징 (예시: /api/posts?page=1&size=20)
+    @GetMapping
+    public ResponseEntity<?> getPosts(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        // PostService에서 전체 글, 페이지 수 등 내려주는 메서드가 필요
+        // 예시: return postService.getPosts(page, size);
+        return ResponseEntity.ok(postService.getPosts(page, size));
+    }
 }

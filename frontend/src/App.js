@@ -1,51 +1,28 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import Navbar from './components/Navbar';
 import AuthPage from './pages/AuthPage';
 import HomePage from './pages/HomePage';
-import PostPage from './pages/PostPage';
-import PostsPage from './pages/PostsPage';
 import CreatePostPage from './pages/CreatePostPage';
-// ... 필요한 컴포넌트 import
-
-// 인증된 상태에서만 children을 보여주는 예시
-function PrivateRoute({ children }) {
-  const { currentUser, loading } = useAuth();
-  if (loading) return null;
-  return currentUser ? children : <Navigate to="/auth" replace />;
-}
-
+import PostPage from './pages/PostPage';
 
 function App() {
+  const [darkMode, setDarkMode] = useState(false);
+
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* 인증이 필요한 라우트 */}
-          <Route path="/" element={
-            <PrivateRoute>
-              <HomePage />
-            </PrivateRoute>
-          } />
-          <Route path="/posts/:id" element={
-            <PrivateRoute>
-              <PostPage />
-            </PrivateRoute>
-          } />
-          <Route path="/create" element={
-            <PrivateRoute>
-              <CreatePostPage />
-            </PrivateRoute>
-          } />
-          <Route path="/posts" element={
-            <PrivateRoute>
-              <PostsPage />
-            </PrivateRoute>
-          } />
-          {/* 인증이 필요 없는 라우트 */}
-          <Route path="/auth" element={<AuthPage />} />
-        </Routes>
-      </BrowserRouter>
+      <Router>
+        <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
+        <div style={{ background: darkMode ? "#121212" : "#fff", minHeight: "100vh" }}>
+          <Routes>
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/" element={<HomePage darkMode={darkMode} />} />
+            <Route path="/create" element={<CreatePostPage darkMode={darkMode} />} />
+            <Route path="/posts/:id" element={<PostPage darkMode={darkMode} />} />
+          </Routes>
+        </div>
+      </Router>
     </AuthProvider>
   );
 }

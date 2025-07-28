@@ -11,6 +11,7 @@ public class AuthResponseDto {
     private String uid; // Firebase 사용자 고유 ID
     private String email;
     private String nickname;
+    private String username; // ⭐ 추가: 계정 아이디 (username) 필드
     private String firebaseToken; // Firebase ID Token
     private String message; // 응답 메시지 (예: "로그인 성공", "회원가입 성공")
 }
