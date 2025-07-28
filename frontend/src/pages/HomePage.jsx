@@ -22,109 +22,65 @@ const HomePage = () => {
   };
 
   return (
-    <div
-      style={{
-        backgroundColor: darkMode ? '#121212' : '#fff',
-        color: darkMode ? '#eee' : '#000',
-        minHeight: '100vh',
-        fontFamily: 'sans-serif',
-      }}
-    >
-      {/* 상단: 로고 + 검색창 + 사용자 아이콘 */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '16px 32px',
-        }}
-      >
+    <div className={`${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-white text-black'} min-h-screen font-sans`}>
+      {/* 상단 바 */}
+      <div className="flex justify-between items-center px-8 py-4">
         {/* 로고 */}
         <h1
-          style={{ color: '#1976d2', fontSize: '36px', fontWeight: 'bold', cursor: 'pointer' }}
-          onClick={() => navigate('/')} // ← 이 줄 추가!
+          className="text-4xl font-bold text-blue-700 cursor-pointer"
+          onClick={() => navigate('/')}
         >
           HiSchool
         </h1>
 
         {/* 검색창 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="flex items-center gap-2">
           <input
             type="text"
             placeholder="검색"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{
-              padding: '10px 12px',
-              fontSize: '16px',
-              border: '2px solid #236B8E',
-              borderRadius: '4px 0 0 4px',
-              width: '320px',
-              backgroundColor: darkMode ? '#1e1e1e' : '#fff',
-              color: darkMode ? '#fff' : '#000',
-            }}
+            className={`px-4 py-2 text-base w-80 rounded-l border-2 ${
+              darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-black border-[#236B8E]'
+            }`}
           />
           <button
             onClick={handleSearch}
-            style={{
-              padding: '10px 14px',
-              backgroundColor: '#236B8E',
-              border: 'none',
-              borderRadius: '0 4px 4px 0',
-              cursor: 'pointer',
-              color: '#fff',
-              fontSize: '16px',
-            }}
+            className="px-4 py-2 bg-[#236B8E] text-white rounded-r font-medium hover:bg-[#1e5b78]"
           >
             🔍
           </button>
         </div>
 
-        {/* 사용자 메뉴 */}
-        <div style={{ position: 'relative' }}>
+        {/* 사용자 아이콘 */}
+        <div className="relative">
           <div
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              backgroundColor: darkMode ? '#fff' : '#eee',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              border: '1px solid #ccc',
-            }}
+            className={`w-10 h-10 rounded-full flex items-center justify-center border cursor-pointer ${
+              darkMode ? 'bg-white border-gray-400' : 'bg-gray-200 border-gray-400'
+            }`}
             onClick={() => setMenuOpen(!menuOpen)}
           >
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
               alt="user icon"
-              style={{ width: '24px', height: '24px' }}
+              className="w-6 h-6"
             />
           </div>
 
+          {/* 사용자 드롭다운 메뉴 */}
           {menuOpen && (
             <div
-              style={{
-                position: 'absolute',
-                top: '50px',
-                right: 0,
-                backgroundColor: darkMode ? '#333' : '#fff',
-                color: darkMode ? '#eee' : '#000',
-                padding: '10px',
-                borderRadius: '6px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                width: '160px',
-                fontSize: '14px',
-              }}
+              className={`absolute top-12 right-0 rounded-lg shadow-lg w-40 p-3 text-sm z-50 ${
+                darkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-black'
+              }`}
             >
-              <label style={{ display: 'block', marginBottom: '8px' }}>
+              <label className="block mb-3">
                 🌙 다크모드
                 <input
                   type="checkbox"
                   checked={darkMode}
                   onChange={() => setDarkMode(!darkMode)}
-                  style={{ marginLeft: '5px' }}
+                  className="ml-2"
                 />
               </label>
               <button
@@ -132,46 +88,21 @@ const HomePage = () => {
                   alert('사용자 설정 페이지는 아직 구현되지 않았습니다.');
                   setMenuOpen(false);
                 }}
-                style={{
-                  marginBottom: '8px',
-                  padding: '6px 8px',
-                  backgroundColor: '#666',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  width: '100%',
-                }}
+                className="w-full mb-2 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
               >
                 사용자 설정
               </button>
               {currentUser ? (
                 <button
                   onClick={handleLogout}
-                  style={{
-                    padding: '6px 8px',
-                    backgroundColor: '#e53935',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    width: '100%',
-                  }}
+                  className="w-full py-2 bg-red-600 text-white rounded hover:bg-red-700"
                 >
                   로그아웃
                 </button>
               ) : (
                 <button
                   onClick={() => navigate('/auth')}
-                  style={{
-                    padding: '6px 8px',
-                    backgroundColor: '#236B8E',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    width: '100%',
-                  }}
+                  className="w-full py-2 bg-[#236B8E] text-white rounded hover:bg-[#1e5b78]"
                 >
                   로그인 / 회원가입
                 </button>
@@ -181,36 +112,30 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* 메뉴바 */}
-      <div
-        style={{
-          backgroundColor: '#236B8E',
-          height: '36px',
-          width: '100%',
-        }}
-      ></div>
-
-      {/* 구분선 */}
-      <hr style={{ borderTop: '3px solid #444', margin: 0 }} />
+      {/* 메뉴 바 */}
+      <div className="w-full h-9 bg-[#236B8E]"></div>
+      <hr className="border-t-4 border-gray-700 m-0" />
 
       {/* 로그인 박스 */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          padding: '24px 32px',
-        }}
-      >
-        <div style={{ width: '220px', fontSize: '14px' }}>
-          <h4 style={{ marginBottom: '10px' }}>로그인</h4>
+      <div className="flex justify-end px-8 py-6">
+        <div className="w-[220px] text-sm">
+          <h4 className="mb-2 font-semibold">로그인</h4>
           {currentUser ? (
-            <div style={{ color: darkMode ? '#ccc' : '#444' }}>
+            <div className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               {currentUser.displayName || currentUser.email} 님
             </div>
           ) : (
-            <div style={{ color: darkMode ? '#aaa' : '#888' }}>
-              로그인되어 있지 않습니다.
-            </div>
+            <>
+              <div className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                로그인되어 있지 않습니다.
+              </div>
+              <button
+                onClick={() => navigate('/auth')}
+                className="mt-3 w-full py-2 px-3 bg-[#236B8E] text-white rounded font-semibold hover:bg-[#1e5b78]"
+              >
+                로그인 / 회원가입
+              </button>
+            </>
           )}
         </div>
       </div>
