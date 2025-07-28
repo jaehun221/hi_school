@@ -25,13 +25,13 @@ function AuthPage() {
     // AuthContext에서 함수와 상태 가져오기
     const { signup, login, currentUser, logout } = useAuth();
 
-    // 메시지를 설정하고 일정 시간 후 지우는 함수
     const showMessage = (text, type = 'info', duration = 5000) => {
         setMessage({ text, type });
         setTimeout(() => {
             setMessage({ text: '', type: '' });
         }, duration);
     };
+
 
     // 회원가입 제출 핸들러
     const handleSignup = async (e) => {
@@ -86,10 +86,10 @@ function AuthPage() {
             console.error('로그인 오류:', error);
             let errorMessage = error.message || '알 수 없는 오류가 발생했습니다.';
             showMessage(`오류: ${errorMessage}`, 'error');
+
         }
     };
 
-    // 로그아웃 핸들러
     const handleLogout = async () => {
         try {
             const result = await logout();
