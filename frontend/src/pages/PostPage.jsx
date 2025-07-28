@@ -34,10 +34,15 @@ const PostPage = () => {
 
   // 댓글 추가
   const handleAddComment = (data) => {
-    addComment(id, data).then(() =>
+    addComment(id, {
+      ...data,
+      authorUid: currentUser.uid,
+      authorNickname: currentUser.displayName || currentUser.email // 또는 닉네임 필드
+    }).then(() =>
       getComments(id).then((res) => setComments(res.data))
     );
   };
+
 
   // 댓글 삭제
   const handleDeleteComment = (commentId) => {

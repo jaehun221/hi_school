@@ -22,10 +22,13 @@ public class CommentService {
     private final PostRepository postRepository;
 
     public Long createComment(Long postId, CommentRequestDto dto) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
 
         Comment comment = Comment.builder()
                 .author(dto.getAuthor())
+                .authorUid(dto.getAuthorUid())            // 추가
+                .authorNickname(dto.getAuthorNickname())  // 추가
                 .content(dto.getContent())
                 .post(post)
                 .build();
@@ -41,15 +44,26 @@ public class CommentService {
             throw new IllegalArgumentException("댓글이 해당 게시글에 속하지 않습니다.");
         }
         comment.setAuthor(dto.getAuthor());
+        comment.setAuthorUid(dto.getAuthorUid());            // 추가
+        comment.setAuthorNickname(dto.getAuthorNickname());  // 추가
         comment.setContent(dto.getContent());
     }
 
     public List<CommentResponseDto> getComments(Long postId) {
         return commentRepository.findByPostId(postId)
                 .stream()
-                .map(c -> new CommentResponseDto(c.getId(), c.getAuthor(), c.getContent(), c.getCreatedAt(), c.getUpdatedAt()))
+                .map(c -> new CommentResponseDto(
+                        c.getId(),
+                        c.getAuthor(),
+                        c.getAuthorUid(),              // 추가
+                        c.getAuthorNickname(),         // 추가
+                        c.getContent(),
+                        c.getCreatedAt(),
+                        c.getUpdatedAt()
+                ))
                 .collect(Collectors.toList());
     }
+
 
     public void deleteComment(Long commentId) {
         commentRepository.deleteById(commentId);

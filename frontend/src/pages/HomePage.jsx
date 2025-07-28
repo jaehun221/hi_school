@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getPosts } from '../api/postApi';
 
 const HomePage = ({ darkMode }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth();
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -22,6 +22,14 @@ const HomePage = ({ darkMode }) => {
       .catch(() => setLoading(false));
   }, [page]);
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div
       style={{
@@ -31,7 +39,7 @@ const HomePage = ({ darkMode }) => {
         fontFamily: 'sans-serif',
       }}
     >
-      {/* 메뉴바 */}
+      {/* 메뉴바 (색상 줄만 유지, 로고 없음) */}
       <div
         style={{
           backgroundColor: '#236B8E',
@@ -52,13 +60,49 @@ const HomePage = ({ darkMode }) => {
         <div style={{ width: '220px', fontSize: '14px' }}>
           <h4 style={{ marginBottom: '10px' }}>로그인</h4>
           {currentUser ? (
-            <div style={{ color: darkMode ? '#ccc' : '#444' }}>
-              {currentUser.displayName || currentUser.email} 님
-            </div>
+            <>
+              <div style={{ color: darkMode ? '#ccc' : '#444' }}>
+                {currentUser.displayName || currentUser.email} 님
+              </div>
+              <button
+                onClick={handleLogout}
+                style={{
+                  marginTop: '8px',
+                  width: '100%',
+                  padding: '7px 0',
+                  backgroundColor: '#e53935',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
+              >
+                로그아웃
+              </button>
+            </>
           ) : (
-            <div style={{ color: darkMode ? '#aaa' : '#888' }}>
-              로그인되어 있지 않습니다.
-            </div>
+            <>
+              <div style={{ color: darkMode ? '#aaa' : '#888' }}>
+                로그인되어 있지 않습니다.
+              </div>
+              <button
+                onClick={() => navigate('/auth')}
+                style={{
+                  marginTop: '8px',
+                  width: '100%',
+                  padding: '7px 0',
+                  backgroundColor: '#236B8E',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
+              >
+                로그인 / 회원가입
+              </button>
+            </>
           )}
         </div>
       </div>
