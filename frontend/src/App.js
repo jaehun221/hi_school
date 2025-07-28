@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import AuthPage from './pages/AuthPage';
 import HomePage from './pages/HomePage';
 import PostPage from './pages/PostPage';
+import PostsPage from './pages/PostsPage';
 import CreatePostPage from './pages/CreatePostPage';
 // ... 필요한 컴포넌트 import
 
@@ -34,6 +35,11 @@ function App() {
           <Route path="/create" element={
             <PrivateRoute>
               <CreatePostPage />
+            </PrivateRoute>
+          } />
+          <Route path="/posts" element={
+            <PrivateRoute>
+              <PostsPage />
             </PrivateRoute>
           } />
           {/* 인증이 필요 없는 라우트 */}
