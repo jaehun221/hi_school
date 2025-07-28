@@ -51,7 +51,7 @@ function AuthPage() {
         if (response.success) {
           actualEmail = response.data;
         } else {
-          throw new Error(response.message || '아이디로 이메일 조회 실패');
+          throw new Error(response.message || '이메일 조회 실패');
         }
       }
       const result = await login(actualEmail, password);
