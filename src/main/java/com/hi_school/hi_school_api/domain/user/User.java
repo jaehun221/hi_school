@@ -28,6 +28,9 @@ public class User {
     @Column(name = "nickname", nullable = false, unique = true, length = 255)
     private String nickname;
 
+    @Column(name = "username", nullable = false, unique = true, length = 50) // length는 DB 컬럼과 일치시키세요.
+    private String username;
+
     // 생성 시간을 자동으로 기록합니다.
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -39,11 +42,13 @@ public class User {
     private LocalDateTime updatedAt;
 
     // Lombok의 @Builder를 사용하여 객체 생성을 용이하게 합니다.
+    // ⭐ Builder 생성자에 username 필드 추가
     @Builder
-    public User(String uid, String email, String nickname) {
+    public User(String uid, String email, String nickname, String username) {
         this.uid = uid;
         this.email = email;
         this.nickname = nickname;
+        this.username = username; // ⭐ 추가
     }
 
     // 사용자 정보 업데이트 메서드 (예: 닉네임 변경)
