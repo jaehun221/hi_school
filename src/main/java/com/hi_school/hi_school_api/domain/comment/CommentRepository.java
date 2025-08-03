@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByPostId(Long postId);
+    List<Comment> findByPostIdAndParentIsNull(Long postId); // 최상위 댓글
+    List<Comment> findByParentId(Long parentId); // 특정 댓글의 대댓글
 }

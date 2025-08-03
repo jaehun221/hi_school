@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -18,17 +20,26 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String author;
+    private String author;                  // 이메일(예전 코드)
+
+    private String authorUid;               // 👈 추가!
+    private String authorNickname;          // 👈 추가!
 
     private String content;
 
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Comment parent;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> children = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
