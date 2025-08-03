@@ -7,6 +7,7 @@ const HomePage = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [search, setSearch] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(null);
   const navigate = useNavigate();
 
   const handleSearch = () => {
@@ -21,13 +22,18 @@ const HomePage = () => {
     }
   };
 
+  const menuItems = [
+    { label: '1', subItems: ['1-1', '1-2'] },
+    { label: '2', subItems: ['2-1', '2-2'] },
+  ];
+
   return (
-    <div className={`${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-white text-black'} min-h-screen font-sans`}>
+    <div className={`${darkMode ? 'bg-[#2b2b2b] text-gray-100' : 'bg-white text-black'} min-h-screen font-sans`}>
       {/* 상단 바 */}
       <div className="flex justify-between items-center px-8 py-4">
         {/* 로고 */}
         <h1
-          className="text-4xl font-bold text-blue-700 cursor-pointer"
+          className={`text-4xl font-bold cursor-pointer ml-12 ${darkMode ? 'text-white' : 'text-blue-700'}`}
           onClick={() => navigate('/')}
         >
           HiSchool
@@ -41,7 +47,7 @@ const HomePage = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className={`px-4 py-2 text-base w-80 rounded-l border-2 ${
-              darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-black border-[#236B8E]'
+              darkMode ? 'bg-[#3a3a3a] text-white border-gray-600' : 'bg-white text-black border-[#236B8E]'
             }`}
           />
           <button
@@ -67,11 +73,10 @@ const HomePage = () => {
             />
           </div>
 
-          {/* 사용자 드롭다운 메뉴 */}
           {menuOpen && (
             <div
               className={`absolute top-12 right-0 rounded-lg shadow-lg w-40 p-3 text-sm z-50 ${
-                darkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-black'
+                darkMode ? 'bg-[#3a3a3a] text-gray-100' : 'bg-white text-black'
               }`}
             >
               <label className="block mb-3">
@@ -112,8 +117,36 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* 메뉴 바 */}
-      <div className="w-full h-9 bg-[#236B8E]"></div>
+      {/* 두꺼운 네비게이션 바 + 숫자 메뉴 */}
+      <div className="relative bg-[#236B8E] h-12 z-10">
+        <div className="flex items-center h-full space-x-10 px-20">
+          {menuItems.map((item, idx) => (
+            <div
+              key={idx}
+              className="relative text-white font-semibold text-lg"
+              onMouseEnter={() => setDropdownOpen(idx)}
+              onMouseLeave={() => setDropdownOpen(null)}
+            >
+              <button className="hover:underline">{item.label}</button>
+              {dropdownOpen === idx && (
+                <div className="absolute top-full left-0 mt-1 bg-white text-black shadow-lg rounded-md w-28 py-2 z-50">
+                  {item.subItems.map((sub, i) => (
+                    <div
+                      key={i}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                      onClick={() => alert(`${item.label} > ${sub}`)}
+                    >
+                      {sub}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 구분선 */}
       <hr className="border-t-4 border-gray-700 m-0" />
 
       {/* 로그인 박스 */}

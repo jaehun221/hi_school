@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getEmailByUsername, getUsernameByEmail } from '../services/authService';
+import { useNavigate } from 'react-router-dom'; // ✅ 추가
 
 function AuthPage() {
   const [isLoginMode, setIsLoginMode] = useState(true);
-  const [showFindUsername, setShowFindUsername] = useState(false); // 아이디 찾기 화면 표시 여부
+  const [showFindUsername, setShowFindUsername] = useState(false);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,6 +20,7 @@ function AuthPage() {
   const [findUsernameError, setFindUsernameError] = useState('');
 
   const { signup, login, currentUser, logout } = useAuth();
+  const navigate = useNavigate(); // ✅ 추가
 
   const showMessage = (text, type = 'info', duration = 5000) => {
     setMessage({ text, type });
@@ -58,6 +60,7 @@ function AuthPage() {
       showMessage(result.message, 'success');
       setLoginIdOrEmail('');
       setPassword('');
+      navigate('/'); // ✅ 로그인 성공 시 메인 페이지로 이동
     } catch (error) {
       showMessage(`오류: ${error.message || '알 수 없는 오류 발생'}`, 'error');
     }
@@ -161,7 +164,6 @@ function AuthPage() {
           </form>
         )}
 
-        {/* 아이디 찾기 폼만 보이는 경우 */}
         {showFindUsername && (
           <>
             <form onSubmit={handleFindUsername} className="space-y-6">
