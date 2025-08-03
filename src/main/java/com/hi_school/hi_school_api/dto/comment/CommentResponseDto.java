@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -15,4 +16,6 @@ public class CommentResponseDto {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Long parentId;
+    private List<CommentResponseDto> children;
 }

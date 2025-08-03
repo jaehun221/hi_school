@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const CommentForm = ({ onSubmit, initialValue, darkMode = false, onCancel }) => {
+const CommentForm = ({ onSubmit, initialValue, darkMode = false, onCancel, parentId }) => {
   const [content, setContent] = useState(initialValue?.content || "");
   const [loading, setLoading] = useState(false);
 
@@ -9,10 +9,22 @@ const CommentForm = ({ onSubmit, initialValue, darkMode = false, onCancel }) => 
     if (!content.trim()) return;
     setLoading(true);
     try {
-      await onSubmit({ content });
+      await onSubmit({
+        content,
+        parentId,
+        author: initialValue?.author,
+        authorUid: initialValue?.authorUid,
+        authorNickname: initialValue?.authorNickname
+      });
       setContent("");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.ctrlKey && e.key === "Enter") {
+      handleSubmit(e);
     }
   };
 
@@ -22,25 +34,49 @@ const CommentForm = ({ onSubmit, initialValue, darkMode = false, onCancel }) => 
       display: "flex",
       flexDirection: "column",
       gap: 10,
+      position: "relative" // 글자수 표시용
     }}>
-      <textarea
-        value={content}
-        onChange={e => setContent(e.target.value)}
-        placeholder="댓글을 입력하세요."
-        rows={3}
-        style={{
-          resize: "vertical",
-          padding: "13px 14px",
-          fontSize: 16,
-          border: `1.5px solid #236B8E`,
-          borderRadius: 7,
-          background: darkMode ? "#181e24" : "#fff",
-          color: darkMode ? "#c3eafc" : "#222",
-          outline: "none",
-          transition: "background 0.2s"
-        }}
-        maxLength={300}
-      />
+      <div style={{ position: "relative" }}>
+        <textarea
+          value={content}
+          onChange={e => setContent(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="댓글을 입력하세요."
+          rows={3}
+          style={{
+            width: "100%",
+            minWidth: "280px",
+            maxWidth: "100%",
+            height: "100px",
+            minHeight: "100px",
+            maxHeight: "100px",
+            resize: "none",
+            overflow: "auto",
+            padding: "13px 14px",
+            fontSize: 16,
+            border: `1.5px solid #236B8E`,
+            borderRadius: 7,
+            background: darkMode ? "#181e24" : "#fff",
+            color: darkMode ? "#c3eafc" : "#222",
+            outline: "none",
+            transition: "background 0.2s"
+          }}
+          maxLength={200}
+        />
+        <span
+          style={{
+            position: "absolute",
+            right: 16,
+            bottom: 10,
+            fontSize: 13,
+            color: darkMode ? "#6a8ca0" : "#b0b0b0",
+            opacity: 0.7,
+            pointerEvents: "none"
+          }}
+        >
+          {content.length} / 200
+        </span>
+      </div>
       <div style={{
         display: "flex",
         justifyContent: "flex-end",
@@ -86,3 +122,11 @@ const CommentForm = ({ onSubmit, initialValue, darkMode = false, onCancel }) => 
 };
 
 export default CommentForm;
+
+/*
+- 댓글/대댓글 입력 지원 (parentId)
+- 200자 제한, 글자수 표시
+- 입력창 크기 고정, 스크롤
+- 등록/수정/취소 버튼
+- darkMode 지원
+*/

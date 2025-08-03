@@ -15,6 +15,11 @@ export const addComment = async (postId, data) => {
   const user = auth.currentUser;
   if (!user) throw new Error("로그인 필요");
   const idToken = await user.getIdToken();
+  if ("parentId" in data && data.parentId !== null) {
+    console.log("[대댓글 요청]", { postId, ...data });
+  } else {
+    console.log("[댓글 요청]", { postId, ...data });
+  }
   return axios.post(`${BASE_URL}/posts/${postId}/comments`, data, {
     headers: { Authorization: `Bearer ${idToken}` }
   });

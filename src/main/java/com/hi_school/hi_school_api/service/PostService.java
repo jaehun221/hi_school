@@ -5,6 +5,7 @@ import com.hi_school.hi_school_api.dto.post.PostRequestDto;
 import com.hi_school.hi_school_api.dto.post.PostResponseDto;
 import com.hi_school.hi_school_api.dto.post.PostsListResponseDto;
 import com.hi_school.hi_school_api.domain.post.PostRepository;
+import com.hi_school.hi_school_api.domain.comment.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository; // 댓글 레포지토리 주입
 
     public Long createPost(PostRequestDto dto) {
         Post post = Post.builder()
@@ -66,3 +68,11 @@ public class PostService {
         postRepository.deleteById(id);
     }
 }
+
+// 이 파일의 소스에는 문제 없습니다.
+// 빌드 오류는 디렉터리 삭제 실패(권한 또는 파일 점유)로 인한 것이므로, 소스 변경 없이
+// 아래와 같이 해결하세요:
+//
+// 1. IDE/터미널을 완전히 종료 후 다시 빌드
+// 2. build/classes/java/main 폴더가 열려 있거나 파일이 점유 중이면 닫기
+// 3. 필요시 해당 폴더를 수동으로 삭제 후 빌드 재시도

@@ -7,15 +7,18 @@ import com.hi_school.hi_school_api.domain.post.PostRepository;
 import com.hi_school.hi_school_api.dto.comment.CommentRequestDto;
 import com.hi_school.hi_school_api.dto.comment.CommentResponseDto;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CommentService {
 
     private final CommentRepository commentRepository;
@@ -25,12 +28,19 @@ public class CommentService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
+        Comment parent = null;
+        if (dto.getParentId() != null) {
+            parent = commentRepository.findById(dto.getParentId())
+                    .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+        }
+
         Comment comment = Comment.builder()
                 .author(dto.getAuthor())
-                .authorUid(dto.getAuthorUid())            // 추가
-                .authorNickname(dto.getAuthorNickname())  // 추가
+                .authorUid(dto.getAuthorUid())
+                .authorNickname(dto.getAuthorNickname())
                 .content(dto.getContent())
                 .post(post)
+                .parent(parent)
                 .build();
 
         return commentRepository.save(comment).getId();
@@ -43,25 +53,36 @@ public class CommentService {
         if (!comment.getPost().getId().equals(postId)) {
             throw new IllegalArgumentException("댓글이 해당 게시글에 속하지 않습니다.");
         }
-        comment.setAuthor(dto.getAuthor());
-        comment.setAuthorUid(dto.getAuthorUid());            // 추가
-        comment.setAuthorNickname(dto.getAuthorNickname());  // 추가
+        if (dto.getAuthor() != null) comment.setAuthor(dto.getAuthor());
+        if (dto.getAuthorUid() != null) comment.setAuthorUid(dto.getAuthorUid());
+        if (dto.getAuthorNickname() != null) comment.setAuthorNickname(dto.getAuthorNickname());
         comment.setContent(dto.getContent());
     }
 
+    @Transactional(readOnly = true)
     public List<CommentResponseDto> getComments(Long postId) {
-        return commentRepository.findByPostId(postId)
-                .stream()
-                .map(c -> new CommentResponseDto(
-                        c.getId(),
-                        c.getAuthor(),
-                        c.getAuthorUid(),              // 추가
-                        c.getAuthorNickname(),         // 추가
-                        c.getContent(),
-                        c.getCreatedAt(),
-                        c.getUpdatedAt()
-                ))
+        List<Comment> topLevelComments = commentRepository.findByPostIdAndParentIsNull(postId);
+        return topLevelComments.stream()
+                .map(this::convertToDtoTree)
                 .collect(Collectors.toList());
+    }
+
+    private CommentResponseDto convertToDtoTree(Comment comment) {
+        List<CommentResponseDto> childrenDtos = comment.getChildren().stream()
+                .map(this::convertToDtoTree)
+                .collect(Collectors.toList());
+
+        return new CommentResponseDto(
+                comment.getId(),
+                comment.getAuthor(),
+                comment.getAuthorUid(),
+                comment.getAuthorNickname(),
+                comment.getContent(),
+                comment.getCreatedAt(),
+                comment.getUpdatedAt(),
+                comment.getParent() != null ? comment.getParent().getId() : null,
+                childrenDtos
+        );
     }
 
 
